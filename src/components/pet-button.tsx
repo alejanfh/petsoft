@@ -54,7 +54,13 @@ export default function PetButton({
           </DialogTitle>
         </DialogHeader>
 
-        <PetForm />
+        {/* onFormSubmission para poder ver cuando se abre y se cierra el Dialog */}
+        <PetForm
+          type={actionType}
+          onFormSubmission={() => {
+            setIsFormOpen(false);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -7,6 +7,7 @@ type TPetContext = {
   selectedPetId: string | null;
   handleChangeSelectedPetId: (id: string) => void;
   handleCheckoutPet: (id: string) => void;
+  handleAddPet: (newPet: Omit<Pet, "id">) => void;
   selectedPet: Pet | undefined;
   numberOfPets: number;
 };
@@ -45,6 +46,14 @@ export default function PetContextProvider({
     setSelectedPetId(null);
   };
 
+  // Cuando se llama a esta funcion desde el form, no vamos a hacer que el
+  // usuario ponga el id en el input
+  // Entonces hacemos que no haga falta pasarle el id con el Omit
+  const handleAddPet = (newPet: Omit<Pet, "id">) => {
+    // Para crear un id aleatorio único, se puede utilizar la fecha
+    setPets((prev) => [...prev, { id: Date.now().toString(), ...newPet }]);
+  };
+
   return (
     <PetContext.Provider
       value={{
@@ -53,6 +62,7 @@ export default function PetContextProvider({
         numberOfPets,
         handleChangeSelectedPetId,
         handleCheckoutPet,
+        handleAddPet,
         selectedPet,
       }}
     >
