@@ -8,7 +8,7 @@ export default function PetList() {
   const { pets, selectedPetId, handleChangeSelectedPetId } = usePetContext();
 
   return (
-    <ul className=" bg-white border-b border-b-black/[0.08]">
+    <ul className=" bg-white border-b border-b-light">
       {pets.map((pet) => (
         <li key={pet.id}>
           <button
