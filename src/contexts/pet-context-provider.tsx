@@ -6,6 +6,7 @@ type TPetContext = {
   pets: Pet[];
   selectedPetId: string | null;
   handleChangeSelectedPetId: (id: string) => void;
+  handleCheckoutPet: (id: string) => void;
   selectedPet: Pet | undefined;
   numberOfPets: number;
 };
@@ -34,6 +35,16 @@ export default function PetContextProvider({
     setSelectedPetId(id);
   };
 
+  const handleCheckoutPet = (id: string) => {
+    // Vamos recorriendo la lista de pets y comprobamos si el pet.id !== id
+    // si es true (no es el id que estamos buscando), se queda en el array de pets
+    // si es false (hemos encontrado el pet con el id que buscamos), hacemos filter out
+    // (a tomar por culo el perro)
+    setPets((prev) => prev.filter((pet) => pet.id !== id));
+
+    setSelectedPetId(null);
+  };
+
   return (
     <PetContext.Provider
       value={{
@@ -41,6 +52,7 @@ export default function PetContextProvider({
         selectedPetId,
         numberOfPets,
         handleChangeSelectedPetId,
+        handleCheckoutPet,
         selectedPet,
       }}
     >
