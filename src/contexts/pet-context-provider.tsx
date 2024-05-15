@@ -1,5 +1,5 @@
 "use client";
-import { addPet } from "@/actions/actions";
+import { addPet, editPet } from "@/actions/actions";
 import { Pet } from "@/lib/types";
 import { ReactNode, createContext, useState } from "react";
 
@@ -23,10 +23,12 @@ type PetContextProviderProps = {
 
 export default function PetContextProvider({
   children,
-  data,
+  data: pets,
 }: PetContextProviderProps) {
   // state
-  const [pets, setPets] = useState<Pet[]>(data);
+  // Se quita porque con el revalidatePath no funcionaba, porque no volvia
+  // a inicializar el use state con data, se quedaba con el data del principio
+  // const [pets, setPets] = useState<Pet[]>(data);
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
 
   // derived state
@@ -43,7 +45,7 @@ export default function PetContextProvider({
     // si es true (no es el id que estamos buscando), se queda en el array de pets
     // si es false (hemos encontrado el pet con el id que buscamos), hacemos filter out
     // (a tomar por culo el perro)
-    setPets((prev) => prev.filter((pet) => pet.id !== id));
+    // setPets((prev) => prev.filter((pet) => pet.id !== id));
 
     setSelectedPetId(null);
   };
@@ -59,22 +61,24 @@ export default function PetContextProvider({
     await addPet(newPet);
   };
 
-  const handleEditPet = (petId: string, newPetData: Omit<Pet, "id">) => {
+  const handleEditPet = async (petId: string, newPetData: Omit<Pet, "id">) => {
     // Pillas todos los prets previos, los recorres con el .map y
     // miras cual es el pet con el id que quieres.
     // Aquí retornas un objeto con el id del petId que quieres editar
     // y haces spread de los atributos del newPetData
-    setPets((prev) =>
-      prev.map((pet) => {
-        if (pet.id === petId) {
-          return {
-            id: petId,
-            ...newPetData,
-          };
-        }
-        return pet;
-      })
-    );
+    // setPets((prev) =>
+    //   prev.map((pet) => {
+    //     if (pet.id === petId) {
+    //       return {
+    //         id: petId,
+    //         ...newPetData,
+    //       };
+    //     }
+    //     return pet;
+    //   })
+    // );
+
+    await editPet(petId, newPetData);
   };
 
   return (

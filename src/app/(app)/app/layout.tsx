@@ -5,6 +5,7 @@ import PetContextProvider from "@/contexts/pet-context-provider";
 import SearchContextProvider from "@/contexts/search-context-provider";
 import { ReactNode } from "react";
 import prisma from "@/lib/db";
+import { Toaster } from "@/components/ui/sonner";
 
 type AppLayout = {
   children: ReactNode;
@@ -25,6 +26,8 @@ export default async function AppLayout({ children }: AppLayout) {
 
         <AppFooter />
       </div>
+
+      <Toaster position="top-right" />
     </>
   );
 }

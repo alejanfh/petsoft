@@ -5,7 +5,9 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { DEFAULT_PET_IMAGE } from "@/lib/constants";
+import { addPet, editPet } from "@/actions/actions";
+import PetFormBtn from "./pet-form-btn";
+import { toast } from "sonner";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -16,49 +18,73 @@ export default function PetForm({
   actionType,
   onFormSubmission,
 }: PetFormProps) {
-  const { handleAddPet, handleEditPet, selectedPet } = usePetContext();
+  const { selectedPet } = usePetContext();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
 
-    const formData = new FormData(event.currentTarget);
-    // formData.entries te permite leer toda la data del Form
-    // lo ponemos dentro de un Object de hjavascript tipico
-    // pet entonces sera un objeto tipico ( lo estructura con el atributo name del input)
-    // console.log(pet)
-    // {
-    //  age: "2"
-    //  imageUrl: ""
-    //  name: "Mike"
-    //  notes: "allergic to peanuts"
-    //  ownerName: "Sean"
-    // }
+  //   const formData = new FormData(event.currentTarget);
+  //   // formData.entries te permite leer toda la data del Form
+  //   // lo ponemos dentro de un Object de hjavascript tipico
+  //   // pet entonces sera un objeto tipico ( lo estructura con el atributo name del input)
+  //   // console.log(pet)
+  //   // {
+  //   //  age: "2"
+  //   //  imageUrl: ""
+  //   //  name: "Mike"
+  //   //  notes: "allergic to peanuts"
+  //   //  ownerName: "Sean"
+  //   // }
 
-    // const newPet = Object.fromEntries(formData.entries());
+  //   // const newPet = Object.fromEntries(formData.entries());
 
-    // Ponemos el required en los inputs para indicar que van a estar llenos siempre
-    // pero el formData infiere el type como string | null, entonces se pone el as string
-    // el + es para convertirlo en Number
+  //   // Ponemos el required en los inputs para indicar que van a estar llenos siempre
+  //   // pero el formData infiere el type como string | null, entonces se pone el as string
+  //   // el + es para convertirlo en Number
 
-    const newPet = {
-      name: formData.get("name") as string,
-      ownerName: formData.get("ownerName") as string,
-      imageUrl: (formData.get("imageUrl") as string) || DEFAULT_PET_IMAGE,
-      age: +(formData.get("age") as string),
-      notes: formData.get("notes") as string,
-    };
+  //   const newPet = {
+  //     name: formData.get("name") as string,
+  //     ownerName: formData.get("ownerName") as string,
+  //     imageUrl: (formData.get("imageUrl") as string) || DEFAULT_PET_IMAGE,
+  //     age: +(formData.get("age") as string),
+  //     notes: formData.get("notes") as string,
+  //   };
 
-    if (actionType === "add") {
-      handleAddPet(newPet);
-    } else if (actionType === "edit") {
-      handleEditPet(selectedPet!.id, newPet);
-    }
+  //   if (actionType === "add") {
+  //     handleAddPet(newPet);
+  //   } else if (actionType === "edit") {
+  //     handleEditPet(selectedPet!.id, newPet);
+  //   }
 
-    onFormSubmission();
-  };
+  //   onFormSubmission();
+  // };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col">
+    <form
+      action={async (formData) => {
+        if (actionType === "add") {
+          // si devuelve algo, será un error, sino habrá ido todo bien
+          const error = await addPet(formData);
+
+          if (error) {
+            toast.warning(error.message);
+            return;
+          }
+        } else if (actionType === "edit") {
+          // si devuelve algo, será un error, sino habrá ido todo bien
+          const error = await editPet(selectedPet!.id, formData);
+
+          if (error) {
+            toast.warning(error.message);
+            return;
+          }
+        }
+
+        // Para cerrar el popup/dialog
+        onFormSubmission();
+      }}
+      className="flex flex-col"
+    >
       <div className=" space-y-3">
         <div className=" space-y-1">
           <Label htmlFor="name">Name</Label>
@@ -111,9 +137,7 @@ export default function PetForm({
         </div>
       </div>
 
-      <Button type="submit" className=" mt-5 self-end">
-        {actionType === "add" ? "Add a new pet" : "Edit pet"}
-      </Button>
+      <PetFormBtn actionType={actionType} />
     </form>
   );
 }
