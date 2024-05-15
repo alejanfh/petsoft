@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Update the database => npx prisma db push
+// Check the database (en un localhost:5555) => npx prisma studio
+// db.ts -> https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/nextjs-prisma-client-dev-practices
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Pet {
+  id String @id @default(cuid())
+  name String
+  ownerName String
+  imageUrl String
+  age Int
+  notes String
+  updateAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
