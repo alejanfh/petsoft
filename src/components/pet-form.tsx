@@ -8,12 +8,15 @@ import { Textarea } from "./ui/textarea";
 import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 
 type PetFormProps = {
-  type: "add" | "edit";
+  actionType: "add" | "edit";
   onFormSubmission: () => void;
 };
 
-export default function PetForm({ type, onFormSubmission }: PetFormProps) {
-  const { handleAddPet } = usePetContext();
+export default function PetForm({
+  actionType,
+  onFormSubmission,
+}: PetFormProps) {
+  const { handleAddPet, handleEditPet, selectedPet } = usePetContext();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -45,7 +48,11 @@ export default function PetForm({ type, onFormSubmission }: PetFormProps) {
       notes: formData.get("notes") as string,
     };
 
-    handleAddPet(newPet);
+    if (actionType === "add") {
+      handleAddPet(newPet);
+    } else if (actionType === "edit") {
+      handleEditPet(selectedPet!.id, newPet);
+    }
 
     onFormSubmission();
   };
@@ -55,28 +62,57 @@ export default function PetForm({ type, onFormSubmission }: PetFormProps) {
       <div className=" space-y-3">
         <div className=" space-y-1">
           <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" type="text" required />
+          <Input
+            id="name"
+            name="name"
+            type="text"
+            required
+            defaultValue={actionType === "edit" ? selectedPet?.name : ""}
+          />
         </div>
         <div className=" space-y-1">
           <Label htmlFor="ownerName">Owner Name</Label>
-          <Input id="ownerName" name="ownerName" type="text" required />
+          <Input
+            id="ownerName"
+            name="ownerName"
+            type="text"
+            required
+            defaultValue={actionType === "edit" ? selectedPet?.ownerName : ""}
+          />
         </div>
         <div className=" space-y-1">
           <Label htmlFor="imageUrl">Image Url</Label>
-          <Input id="imageUrl" name="imageUrl" type="text" />
+          <Input
+            id="imageUrl"
+            name="imageUrl"
+            type="text"
+            defaultValue={actionType === "edit" ? selectedPet?.imageUrl : ""}
+          />
         </div>
         <div className=" space-y-1">
           <Label htmlFor="age">Age</Label>
-          <Input id="age" name="age" type="text" required />
+          <Input
+            id="age"
+            name="age"
+            type="text"
+            required
+            defaultValue={actionType === "edit" ? selectedPet?.age : ""}
+          />
         </div>
         <div className=" space-y-1">
           <Label htmlFor="notes">Notes</Label>
-          <Textarea id="notes" name="notes" rows={3} required />
+          <Textarea
+            id="notes"
+            name="notes"
+            rows={3}
+            required
+            defaultValue={actionType === "edit" ? selectedPet?.notes : ""}
+          />
         </div>
       </div>
 
       <Button type="submit" className=" mt-5 self-end">
-        {type === "add" ? "Add a new pet" : "Edit pet"}
+        {actionType === "add" ? "Add a new pet" : "Edit pet"}
       </Button>
     </form>
   );

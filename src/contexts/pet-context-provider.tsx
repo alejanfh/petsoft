@@ -8,6 +8,7 @@ type TPetContext = {
   handleChangeSelectedPetId: (id: string) => void;
   handleCheckoutPet: (id: string) => void;
   handleAddPet: (newPet: Omit<Pet, "id">) => void;
+  handleEditPet: (petId: string, newPetData: Omit<Pet, "id">) => void;
   selectedPet: Pet | undefined;
   numberOfPets: number;
 };
@@ -54,6 +55,24 @@ export default function PetContextProvider({
     setPets((prev) => [...prev, { id: Date.now().toString(), ...newPet }]);
   };
 
+  const handleEditPet = (petId: string, newPetData: Omit<Pet, "id">) => {
+    // Pillas todos los prets previos, los recorres con el .map y
+    // miras cual es el pet con el id que quieres.
+    // Aquí retornas un objeto con el id del petId que quieres editar
+    // y haces spread de los atributos del newPetData
+    setPets((prev) =>
+      prev.map((pet) => {
+        if (pet.id === petId) {
+          return {
+            id: petId,
+            ...newPetData,
+          };
+        }
+        return pet;
+      })
+    );
+  };
+
   return (
     <PetContext.Provider
       value={{
@@ -63,6 +82,7 @@ export default function PetContextProvider({
         handleChangeSelectedPetId,
         handleCheckoutPet,
         handleAddPet,
+        handleEditPet,
         selectedPet,
       }}
     >
