@@ -7,18 +7,13 @@ import { Textarea } from "./ui/textarea";
 import PetFormBtn from "./pet-form-btn";
 import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TPetForm, petFormSchema } from "@/lib/validations";
 
 type PetFormProps = {
   actionType: "add" | "edit";
   onFormSubmission: () => void;
-};
-
-type TPetForm = {
-  name: string;
-  ownerName: string;
-  imageUrl: string;
-  age: number;
-  notes: string;
 };
 
 export default function PetForm({
@@ -76,12 +71,15 @@ export default function PetForm({
   const {
     register,
     trigger,
+    getValues,
     formState: { errors },
-  } = useForm<TPetForm>();
+  } = useForm<TPetForm>({
+    resolver: zodResolver(petFormSchema),
+  });
 
   return (
     <form
-      action={async (formData) => {
+      action={async () => {
         /* if (actionType === "add") {
           // si devuelve algo, será un error, sino habrá ido todo bien
           const error = await addPet(formData);
@@ -107,6 +105,13 @@ export default function PetForm({
         // pone los errores debajo de los inputs
         if (!result) return;
 
+        /*Para cerrar el popup/dialog
+        Error: Si hay dentro de este action={} varios setState..., react los agrupa por performance
+        entonces MAL, y los setState empezaran todos a la vez, y queremos que el onFormSubmision sea
+        el último, se añade flushSync*/
+        onFormSubmission();
+
+        /* Antes
         const petData = {
           name: formData.get("name") as string,
           ownerName: formData.get("ownerName") as string,
@@ -114,18 +119,18 @@ export default function PetForm({
           age: Number(formData.get("age") as string),
           notes: formData.get("notes") as string,
         };
+        */
+
+        // Ya pillamos el contenido del form desde el useForm, con todos los types correctos
+        const petData = getValues();
+        // Se hace este verificado porque el .transform en el zod solo afecta al onSubmit, aun no a action={}
+        petData.imageUrl = petData.imageUrl || DEFAULT_PET_IMAGE;
 
         if (actionType === "add") {
           await handleAddPet(petData);
         } else if (actionType === "edit") {
           await handleEditPet(selectedPet!.id, petData);
         }
-
-        /*Para cerrar el popup/dialog
-        Error: Si hay dentro de este action={} varios setState..., react los agrupa por performance
-        entonces MAL, y los setState empezaran todos a la vez, y queremos que el onFormSubmision sea
-        el último, se añade flushSync*/
-        onFormSubmission();
       }}
       className="flex flex-col"
     >
@@ -134,13 +139,7 @@ export default function PetForm({
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
-            {...register("name", {
-              required: "Name is required",
-              minLength: {
-                value: 3,
-                message: "Name must be at least 3 characters long",
-              },
-            })}
+            {...register("name")}
 
             // name="name"
             // type="text"
@@ -153,16 +152,7 @@ export default function PetForm({
 
         <div className=" space-y-1">
           <Label htmlFor="ownerName">Owner Name</Label>
-          <Input
-            id="ownerName"
-            {...register("ownerName", {
-              required: "OwnerName is required",
-              maxLength: {
-                value: 20,
-                message: "Owner name must be less than 20 characters long",
-              },
-            })}
-          />
+          <Input id="ownerName" {...register("ownerName")} />
           {errors.ownerName && (
             <p className=" text-red-500">{errors.ownerName.message}</p>
           )}
