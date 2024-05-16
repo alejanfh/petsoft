@@ -1,12 +1,14 @@
 "use server";
 import prisma from "@/lib/db";
-import { PetEssentials } from "@/lib/types";
 import { sleep } from "@/lib/utils";
-import { petFormSchema } from "@/lib/validations";
-import { Pet } from "@prisma/client";
+import { petFormSchema, petIdSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 
-export async function addPet(petData: PetEssentials) {
+// se pone unknown porque en verdad no sabemos lo que viene,
+// si ponemos que sea PetEssentials, eso es lo que nos gustaria que tuviera
+// pero no lo puedes asegurar ya que viene del cliente. Ya lo ponemos con el type
+// que queremos con zod con el petFormSchema
+export async function addPet(petData: unknown) {
   await sleep(1000);
 
   //validate data
@@ -31,11 +33,13 @@ export async function addPet(petData: PetEssentials) {
   revalidatePath("/app", "layout");
 }
 
-export async function editPet(petId: Pet["id"], newPetData: PetEssentials) {
+export async function editPet(petId: unknown, newPetData: unknown) {
   await sleep(1000);
 
   const validatedNewPet = petFormSchema.safeParse(newPetData);
-  if (!validatedNewPet.success) {
+  const validatedNewPetId = petIdSchema.safeParse(petId);
+
+  if (!validatedNewPet.success || !validatedNewPetId.success) {
     return {
       message: "Invalid pet data",
     };
@@ -44,7 +48,7 @@ export async function editPet(petId: Pet["id"], newPetData: PetEssentials) {
   try {
     await prisma.pet.update({
       where: {
-        id: petId,
+        id: validatedNewPetId.data,
       },
       data: validatedNewPet,
     });
@@ -57,13 +61,21 @@ export async function editPet(petId: Pet["id"], newPetData: PetEssentials) {
   revalidatePath("/app", "layout");
 }
 
-export async function deletePet(petId: Pet["id"]) {
+export async function deletePet(petId: unknown) {
   await sleep(1000);
+
+  const validatedNewPetId = petIdSchema.safeParse(petId);
+
+  if (!validatedNewPetId.success) {
+    return {
+      message: "Invalid pet data",
+    };
+  }
 
   try {
     await prisma.pet.delete({
       where: {
-        id: petId,
+        id: validatedNewPetId.data,
       },
     });
   } catch (error) {

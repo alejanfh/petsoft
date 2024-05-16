@@ -12,6 +12,8 @@ import { DEFAULT_PET_IMAGE } from "./constants";
 // No hace falta hacer el type porque zod ya te infiere el tipado
 export type TPetForm = z.infer<typeof petFormSchema>;
 
+export const petIdSchema = z.string().cuid();
+
 export const petFormSchema = z
   .object({
     name: z.string().trim().min(1, { message: "Name is required" }).max(100),
