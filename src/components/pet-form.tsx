@@ -1,13 +1,11 @@
 "use client";
 
 import { usePetContext } from "@/lib/hooks";
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { addPet, editPet } from "@/actions/actions";
 import PetFormBtn from "./pet-form-btn";
-import { toast } from "sonner";
+import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -18,7 +16,7 @@ export default function PetForm({
   actionType,
   onFormSubmission,
 }: PetFormProps) {
-  const { selectedPet } = usePetContext();
+  const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
 
   // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
   //   event.preventDefault();
@@ -62,7 +60,7 @@ export default function PetForm({
   return (
     <form
       action={async (formData) => {
-        if (actionType === "add") {
+        /* if (actionType === "add") {
           // si devuelve algo, será un error, sino habrá ido todo bien
           const error = await addPet(formData);
 
@@ -78,9 +76,26 @@ export default function PetForm({
             toast.warning(error.message);
             return;
           }
+        }*/
+
+        const petData = {
+          name: formData.get("name") as string,
+          ownerName: formData.get("ownerName") as string,
+          imageUrl: (formData.get("imageUrl") as string) || DEFAULT_PET_IMAGE,
+          age: Number(formData.get("age") as string),
+          notes: formData.get("notes") as string,
+        };
+
+        if (actionType === "add") {
+          await handleAddPet(petData);
+        } else if (actionType === "edit") {
+          await handleEditPet(selectedPet!.id, petData);
         }
 
-        // Para cerrar el popup/dialog
+        /*Para cerrar el popup/dialog
+        Error: Si hay dentro de este action={} varios setState..., react los agrupa por performance
+        entonces MAL, y los setState empezaran todos a la vez, y queremos que el onFormSubmision sea
+        el último, se añade flushSync*/
         onFormSubmission();
       }}
       className="flex flex-col"

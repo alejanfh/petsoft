@@ -1,17 +1,18 @@
-import { useFormStatus } from "react-dom";
+// import { useFormStatus } from "react-dom";
 import { Button } from "./ui/button";
 
 type PetFormBtnProps = {
-  actionType: string;
+  actionType: "add" | "edit";
 };
 
 export default function PetFormBtn({ actionType }: PetFormBtnProps) {
   // Hace un poco de magia, porque pilla que tu has hecho submit en pet-form
   // y te pilla si ya ha acabado o no
-  const { pending } = useFormStatus();
+  // 1. Al utilizar useOptimistic ya no hace falta el loading, porque será instantáneo
+  // const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending} className=" mt-5 self-end">
+    <Button type="submit" className=" mt-5 self-end">
       {actionType === "add" ? "Add a new pet" : "Edit pet"}
     </Button>
   );
