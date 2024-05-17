@@ -9,6 +9,7 @@ type AuthFormBtnProps = {
 };
 
 export default function AuthFormBtn({ type }: AuthFormBtnProps) {
+  // Se ghace aqui porque tiene que ser un child del form
   const { pending } = useFormStatus();
 
   return (

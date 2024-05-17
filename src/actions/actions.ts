@@ -9,7 +9,10 @@ import bcrypt from "bcrypt";
 import { checkAuth, getPetById } from "@/lib/server-utils";
 
 /* User actions */
-export async function logIn(formAuthData: unknown) {
+//el useformStatus , en el caso de que llame a esta funcion por primera vez y da error
+// la segunda vez que lo llama, te da un prevState con el error anterior,
+// Se tiene que poner si o si, aunque no se utilice
+export async function logIn(prevState: unknown, formAuthData: unknown) {
   if (!(formAuthData instanceof FormData)) {
     return {
       message: "Invalid form data.",
@@ -38,7 +41,7 @@ export async function logIn(formAuthData: unknown) {
   }
 }
 
-export async function signUp(formAuthData: unknown) {
+export async function signUp(prevState: unknown, formAuthData: unknown) {
   // check if formData is a FormData type
   if (!(formAuthData instanceof FormData)) {
     return {

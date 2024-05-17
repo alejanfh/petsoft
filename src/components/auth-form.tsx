@@ -11,11 +11,12 @@ type AuthFormProps = {
 };
 
 export default function AuthForm({ type }: AuthFormProps) {
+  // nos da el erorr,la funcion que ejecuta (funcion, initialState)
   const [signUpError, dispatchSignUp] = useFormState(signUp, undefined);
   const [logInError, dispatchLogIn] = useFormState(logIn, undefined);
 
   return (
-    <form action={type === "logIn" ? logIn : signUp}>
+    <form action={type === "logIn" ? dispatchLogIn : dispatchSignUp}>
       <div className="space-y-1">
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" required maxLength={100} />
@@ -34,12 +35,12 @@ export default function AuthForm({ type }: AuthFormProps) {
 
       <AuthFormBtn type={type} />
 
-      {/* {signUpError && (
+      {signUpError && (
         <p className="text-red-500 text-sm mt-2">{signUpError.message}</p>
-      )}*/}
-      {/* {logInError && (
+      )}
+      {logInError && (
         <p className="text-red-500 text-sm mt-2">{logInError.message}</p>
-      )} */}
+      )}
     </form>
   );
 }
