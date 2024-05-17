@@ -7,7 +7,6 @@ import { Textarea } from "./ui/textarea";
 import PetFormBtn from "./pet-form-btn";
 import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TPetForm, petFormSchema } from "@/lib/validations";
 
