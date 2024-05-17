@@ -20,6 +20,7 @@ export async function logIn(prevState: unknown, formAuthData: unknown) {
   }
 
   try {
+    // this will redirect for us
     await signIn("credentials", formAuthData);
   } catch (error) {
     if (error instanceof AuthError) {
@@ -37,8 +38,14 @@ export async function logIn(prevState: unknown, formAuthData: unknown) {
       }
     }
 
+    // return {
+    //   message: "Could not sign in.",
+    // };
+
     throw error; // nextjs redirects throws error, so we need to rethrow it
   }
+
+  // redirect("app/dashboard")
 }
 
 export async function signUp(prevState: unknown, formAuthData: unknown) {
