@@ -1,6 +1,8 @@
 import { NextAuthConfig } from "next-auth";
 import prisma from "./db";
 
+// TODO: Faltaria ngrock (proxy) para el testeo
+
 export const nextAuthEdgeConfig = {
   pages: {
     signIn: "/login",
@@ -15,12 +17,12 @@ export const nextAuthEdgeConfig = {
         return false;
       }
 
-      // if (isLoggedIn && isTryingToAccessApp && !auth?.user.hasAccess) {
-      //   return Response.redirect(new URL("/payment", request.nextUrl));
-      // }
-
       if (isLoggedIn && isTryingToAccessApp && auth?.user.hasAccess) {
         return true;
+      }
+
+      if (isLoggedIn && isTryingToAccessApp && !auth?.user.hasAccess) {
+        return Response.redirect(new URL("/payment", request.nextUrl));
       }
 
       if (
@@ -32,16 +34,16 @@ export const nextAuthEdgeConfig = {
         return Response.redirect(new URL("/app/dashboard", request.nextUrl));
       }
 
-      // if (isLoggedIn && !isTryingToAccessApp && !auth?.user.hasAccess) {
-      //   if (
-      //     request.nextUrl.pathname.includes("/login") ||
-      //     request.nextUrl.pathname.includes("/signup")
-      //   ) {
-      //     return Response.redirect(new URL("/payment", request.nextUrl));
-      //   }
+      if (isLoggedIn && !isTryingToAccessApp && !auth?.user.hasAccess) {
+        if (
+          request.nextUrl.pathname.includes("/login") ||
+          request.nextUrl.pathname.includes("/signup")
+        ) {
+          return Response.redirect(new URL("/payment", request.nextUrl));
+        }
 
-      //   return true;
-      // }
+        return true;
+      }
 
       if (!isLoggedIn && !isTryingToAccessApp) {
         return true;
@@ -57,8 +59,9 @@ export const nextAuthEdgeConfig = {
         token.hasAccess = user.hasAccess;
       }
 
+      // cuando llamas al useSession -> update()
       if (trigger === "update") {
-        // on every request
+        // on every request gets the most recent data
         const userFromDb = await prisma.user.findUnique({
           where: {
             email: token.email,

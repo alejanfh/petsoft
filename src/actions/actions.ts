@@ -7,6 +7,9 @@ import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcrypt";
 import { checkAuth, getPetById } from "@/lib/server-utils";
+import { redirect } from "next/navigation";
+
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 /* User actions */
 //el useformStatus , en el caso de que llame a esta funcion por primera vez y da error
@@ -95,6 +98,28 @@ export async function signUp(prevState: unknown, formAuthData: unknown) {
 
 export async function logOut() {
   await signOut({ redirectTo: "/" });
+}
+
+/* Payment actions */
+
+export async function createCheckoutSession() {
+  // authentication check
+  const session = await checkAuth();
+
+  const checkoutSession = await stripe.checkout.sessions.create({
+    customer_email: session.user.email,
+    line_items: [
+      {
+        price: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID,
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: `${process.env.CANONICAL_URL}/payment?success=true`,
+    cancel_url: `${process.env.CANONICAL_URL}/payment?cancelled=true`,
+  });
+
+  redirect(checkoutSession.url);
 }
 
 /* Pet actions */
