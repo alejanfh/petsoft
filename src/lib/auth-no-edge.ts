@@ -5,6 +5,8 @@ import { getUserByEmail } from "./server-utils";
 import { authSchema } from "@/lib/validations";
 import { nextAuthEdgeConfig } from "./auth-edge";
 
+// Se utiliza auth edge y no edge por el bcrypt
+
 export const nextAuthNoEdgeConfig = {
   ...nextAuthEdgeConfig,
   providers: [

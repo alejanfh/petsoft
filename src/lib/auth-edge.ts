@@ -1,7 +1,7 @@
 import { NextAuthConfig } from "next-auth";
 import prisma from "./db";
 
-// TODO: Faltaria ngrock (proxy) para el testeo
+// TODO: Faltaria ngrock (proxy) para el testeo en local
 
 export const nextAuthEdgeConfig = {
   pages: {
